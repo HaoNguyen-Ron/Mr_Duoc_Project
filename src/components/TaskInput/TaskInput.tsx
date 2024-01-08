@@ -16,9 +16,9 @@ export default function TaskInput(props: TaskInputProps) {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if(currentTodo){
+    if (currentTodo) {
       finishEditTodo()
-      if(name) setName('')
+      if (name) setName('')
     } else {
       addTodo(name)
       setName('')
