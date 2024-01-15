@@ -1,8 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Todo } from '../../@types/todo.type'
 import TaskInput from '../TaskInput'
 import TaskList from '../TaskList/TaskList'
 import styles from './todoList.module.scss'
+
+interface HandleNewTodos {
+  (todo: Todo[]): Todo[]
+}
+
+const syncToLocalStorage = (handleNewTodos: HandleNewTodos) => {
+  const todoString = localStorage.getItem('todos')
+  const todoObj: Todo[] = JSON.parse(todoString || '[]')
+  const newTodoObj = handleNewTodos(todoObj)
+  localStorage.setItem('todos', JSON.stringify(newTodoObj))
+}
 
 export default function TodoList() {
   const [todos, setTodos] = useState<Todo[]>([])
@@ -30,7 +41,9 @@ export default function TodoList() {
       done: false,
       id: new Date().toISOString()
     }
-    setTodos((prev) => [...prev, todo])
+    const handler = (todoObj: Todo[]) => [...todoObj, todo]
+    setTodos(handler)
+    syncToLocalStorage(handler)
   }
 
   const startEditTodo = (id: string) => {
@@ -48,31 +61,42 @@ export default function TodoList() {
   }
 
   const finishEditTodo = () => {
-    setTodos((prev) => {
-      return prev.map((todo) => {
-        if (todo.id === currentTodo?.id) {
-          return currentTodo
+    const handler = (todoObj: Todo[]) => {
+      return todoObj.map((todo) => {
+        if (todo.id === (currentTodo as Todo).id) {
+          return currentTodo as Todo
         }
         return todo
       })
-    })
+    }
+    setTodos(handler)
     setCurrentTodos(null)
+    syncToLocalStorage(handler)
   }
 
   const deleteTodo = (id: string) => {
     if (currentTodo) {
       setCurrentTodos(null)
     }
-    setTodos((prev) => {
-      const findIndexTodo = prev.findIndex((todo) => todo.id === id)
+    const handler = (todoObj: Todo[]) => {
+      const findIndexTodo = todoObj.findIndex((todo) => todo.id === id)
       if (findIndexTodo > -1) {
-        const result = [...prev]
+        const result = [...todoObj]
         result.splice(findIndexTodo, 1)
         return result
       }
-      return prev
-    })
+      return todoObj
+    }
+    setTodos(handler)
+    syncToLocalStorage(handler)
   }
+
+  useEffect(() => {
+    const todoString = localStorage.getItem('todos')
+    const todoObj: Todo[] = JSON.parse(todoString || '[]')
+    setTodos(todoObj)
+  }, [])
+
   return (
     <div className={styles.todoList}>
       <div className={styles.todoListContainer}>
