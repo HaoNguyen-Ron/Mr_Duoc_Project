@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { Todo } from '../../@types/todo.type'
@@ -21,9 +21,11 @@ function TaskInput(props: TaskInputProps) {
 
   const [name, setName] = useState<string>('')
 
-  const address = {
-    street : '02 Van Cao'
-  }
+  const address = useMemo(() => {
+    return {
+      street: '02 Van Cao'
+    }
+  }, [])
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -45,9 +47,13 @@ function TaskInput(props: TaskInputProps) {
     }
   }
 
+  const handleClickTitle = (value: any) => {
+    console.log(value)
+  }
+
   return (
     <div className='mb-2'>
-      <Title address={address} />
+      <Title address={address} handleClickTitle={handleClickTitle} />
       <form className={styles.form} onSubmit={handleSubmit}>
         <input
           type='text'

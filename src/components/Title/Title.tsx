@@ -5,6 +5,7 @@ type TitleProps = {
   address: {
     street: string
   }
+  handleClickTitle: (value: any) => void
 }
 
 function Title(address: TitleProps) {
